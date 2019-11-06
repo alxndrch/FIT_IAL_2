@@ -52,11 +52,14 @@ int solved;
 */
 
 int hashCode ( tKey key ) {
-	int retval = 1;
-	int keylen = strlen(key);
-	for ( int i=0; i<keylen; i++ )
-		retval += key[i];
-	return ( retval % HTSIZE );
+    
+    int retval = 1;
+    int keylen = strlen(key);
+    
+    for ( int i=0; i<keylen; i++ )
+        retval += key[i];
+
+    return ( retval % HTSIZE );
 }
 
 /*
@@ -66,7 +69,9 @@ int hashCode ( tKey key ) {
 
 void htInit ( tHTable* ptrht ) {
 
- solved = 0; /*v pripade reseni, smazte tento radek!*/
+    for(int i = 0; i < HTSIZE; i++)
+        (*ptrht)[i] = NULL;
+    
 }
 
 /* TRP s explicitně zřetězenými synonymy.
@@ -78,7 +83,21 @@ void htInit ( tHTable* ptrht ) {
 
 tHTItem* htSearch ( tHTable* ptrht, tKey key ) {
 
- solved = 0; /*v pripade reseni, smazte tento radek!*/
+    int pos = -1;
+    tHTItem* next = NULL;
+    
+    if(key != NULL && ptrht != NULL){
+        pos = hashCode(key);
+
+        if((*ptrht)[pos] != NULL){
+            do{
+                if(!strcmp((*ptrht)[pos]->key,key)) return (*ptrht)[pos];
+                else next = (*ptrht)[pos]->ptrnext;
+            }while(next != NULL);
+        }
+    }
+
+    return next;
 }
 
 /*
@@ -95,7 +114,24 @@ tHTItem* htSearch ( tHTable* ptrht, tKey key ) {
 
 void htInsert ( tHTable* ptrht, tKey key, tData data ) {
 
- solved = 0; /*v pripade reseni, smazte tento radek!*/
+    tHTItem* item = htSearch(ptrht,key);
+    int pos = -1;
+    
+    if(item == NULL){
+        
+        pos = hashCode(key);
+        tHTItem* new = (tHTItem*) malloc(sizeof(struct tHTItem));
+        
+        if(new != NULL){
+            new->key = key; 
+            new->data = data;
+            new->ptrnext = (*ptrht)[pos];
+            (*ptrht)[pos] = new; 
+        }
+
+    }else{
+        item->data = data;     
+    }
 }
 
 /*
@@ -108,8 +144,13 @@ void htInsert ( tHTable* ptrht, tKey key, tData data ) {
 */
 
 tData* htRead ( tHTable* ptrht, tKey key ) {
+    
+    tHTItem* item = htSearch(ptrht,key);
 
- solved = 0; /*v pripade reseni, smazte tento radek!*/
+    if(item != NULL) return &(item->data);
+    
+    return NULL;
+
 }
 
 /*
@@ -124,7 +165,35 @@ tData* htRead ( tHTable* ptrht, tKey key ) {
 
 void htDelete ( tHTable* ptrht, tKey key ) {
 
- solved = 0; /*v pripade reseni, smazte tento radek!*/
+    int pos = -1; 
+    tHTItem* del = NULL;
+    tHTItem* prev = NULL;
+    tHTItem* next = NULL;
+    
+    if(key != NULL && ptrht != NULL){
+
+        pos = hashCode(key); 
+        del = (*ptrht)[pos];
+
+        while(del != NULL){
+            if(del->key != key){
+                prev = del; 
+                del = del->ptrnext;     
+            }else{
+                next = del->ptrnext; 
+                free(del);
+
+                if(prev == NULL){
+                    (*ptrht)[pos] = next;
+                }else{
+                    prev->ptrnext = next;
+                }
+            break;
+            }
+        }
+        
+    }   
+
 }
 
 /* TRP s explicitně zřetězenými synonymy.
@@ -134,5 +203,21 @@ void htDelete ( tHTable* ptrht, tKey key ) {
 
 void htClearAll ( tHTable* ptrht ) {
 
- solved = 0; /*v pripade reseni, smazte tento radek!*/
+    tHTItem* del = NULL;
+    tHTItem* next = NULL;
+    
+    if(ptrht != NULL){
+        for(int i=0; i<HTSIZE; i++){
+
+            del = (*ptrht)[i];
+            
+            while(del != NULL){
+                next = del->ptrnext; //ulozeni sousedniho prvku
+                free(del);
+                del = next;
+            }
+            (*ptrht)[i] = NULL;
+        }
+    }
+
 }
