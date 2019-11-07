@@ -89,12 +89,11 @@ tHTItem* htSearch ( tHTable* ptrht, tKey key ) {
     if(key != NULL && ptrht != NULL){
         pos = hashCode(key);
 
-        if((*ptrht)[pos] != NULL){
-            do{
-                if(!strcmp((*ptrht)[pos]->key,key)) return (*ptrht)[pos];
-                else next = (*ptrht)[pos]->ptrnext;
-            }while(next != NULL);
-        }
+	next = (*ptrht)[pos];
+	while(next != NULL){
+		if(!strcmp(next->key,key)) return next;
+		else next = next->ptrnext; 
+	}
     }
 
     return next;
