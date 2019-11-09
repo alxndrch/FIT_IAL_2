@@ -69,8 +69,9 @@ int hashCode ( tKey key ) {
 
 void htInit ( tHTable* ptrht ) {
 
-    for(int i = 0; i < HTSIZE; i++)
-        (*ptrht)[i] = NULL;
+    for(int i = 0; i < HTSIZE; i++){
+        (*ptrht)[i] = NULL; // kazda polozka pole se nastavi na null
+    }
     
 }
 
@@ -83,16 +84,16 @@ void htInit ( tHTable* ptrht ) {
 
 tHTItem* htSearch ( tHTable* ptrht, tKey key ) {
 
-    int pos = -1;
+    int pos = -1; // pozice
     tHTItem* next = NULL;
     
     if(key != NULL && ptrht != NULL){
-        pos = hashCode(key);
+        pos = hashCode(key); // zjisteni pozice
 
-	next = (*ptrht)[pos];
+	next = (*ptrht)[pos]; // polozka seznamu na radku pos
 	while(next != NULL){
 		if(!strcmp(next->key,key)) return next;
-		else next = next->ptrnext; 
+		else next = next->ptrnext;  // rozdilne klice, testujeme dalsi polozku seznamu
 	}
     }
 
@@ -113,23 +114,23 @@ tHTItem* htSearch ( tHTable* ptrht, tKey key ) {
 
 void htInsert ( tHTable* ptrht, tKey key, tData data ) {
 
-    tHTItem* item = htSearch(ptrht,key);
+    tHTItem* item = htSearch(ptrht,key); // vyhledani polozky
     int pos = -1;
     
-    if(item == NULL){
+    if(item == NULL){ // pokud polozka nebyla nalezen, vytvori se nova
         
         pos = hashCode(key);
         tHTItem* new = (tHTItem*) malloc(sizeof(struct tHTItem));
         
-        if(new != NULL){
+        if(new != NULL){ // inicializace
             new->key = key; 
             new->data = data;
-            new->ptrnext = (*ptrht)[pos];
-            (*ptrht)[pos] = new; 
+            new->ptrnext = (*ptrht)[pos]; // presunuti ukazatelu;
+            (*ptrht)[pos] = new; // nova polozka stoji na zacatku seznamu
         }
 
     }else{
-        item->data = data;     
+        item->data = data; // polozka se stejnym klicem byla nalezena, aktualizuji se data
     }
 }
 
@@ -144,11 +145,11 @@ void htInsert ( tHTable* ptrht, tKey key, tData data ) {
 
 tData* htRead ( tHTable* ptrht, tKey key ) {
     
-    tHTItem* item = htSearch(ptrht,key);
+    tHTItem* item = htSearch(ptrht,key); // vyhleda se polozka 
 
-    if(item != NULL) return &(item->data);
+    if(item != NULL) return &(item->data); // byla nalezena, vraci se jeji data
     
-    return NULL;
+    return NULL; // nebyla nelezena
 
 }
 
@@ -171,23 +172,23 @@ void htDelete ( tHTable* ptrht, tKey key ) {
     
     if(key != NULL && ptrht != NULL){
 
-        pos = hashCode(key); 
+        pos = hashCode(key); // pozice polozky k odstraneni
         del = (*ptrht)[pos];
 
-        while(del != NULL){
+        while(del != NULL){ // pokud polozka existuje 
             if(del->key != key){
                 prev = del; 
                 del = del->ptrnext;     
-            }else{
+            }else{ // polozka byla nalezena, odstrani se
                 next = del->ptrnext; 
                 free(del);
 
-                if(prev == NULL){
-                    (*ptrht)[pos] = next;
-                }else{
+                if(prev == NULL){ // pokud byla prvni v seznamu
+                    (*ptrht)[pos] = next; // druhy prvek se posouva na zacatek
+                }else{ // pokud nebyla prvni v seznamu
                     prev->ptrnext = next;
                 }
-            break;
+            break; // probehla vymena, konec
             }
         }
         
@@ -206,7 +207,7 @@ void htClearAll ( tHTable* ptrht ) {
     tHTItem* next = NULL;
     
     if(ptrht != NULL){
-        for(int i=0; i<HTSIZE; i++){
+        for(int i=0; i<HTSIZE; i++){ 
 
             del = (*ptrht)[i];
             
@@ -215,7 +216,7 @@ void htClearAll ( tHTable* ptrht ) {
                 free(del);
                 del = next;
             }
-            (*ptrht)[i] = NULL;
+            (*ptrht)[i] = NULL; // uvedeni do puvodniho stavu
         }
     }
 
