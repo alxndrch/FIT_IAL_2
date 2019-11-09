@@ -258,18 +258,17 @@ void BTPreorder (tBTNodePtr RootPtr)	{
 **/
 
     tBTNodePtr temp = RootPtr;
-    tStackP *stack = (tStackP*) malloc(sizeof(tStackP)); 
+    tStackP stack; 
 
-    if(stack != NULL && temp != NULL){
-        SInitP(stack); // inicializace zasobniku 
-        Leftmost_Preorder(temp,stack); // hledani nejlevejsiho uzlu 
+    if(temp != NULL){
+        SInitP(&stack); // inicializace zasobniku 
+        Leftmost_Preorder(temp,&stack); // hledani nejlevejsiho uzlu 
         
-        while(!SEmptyP(stack)){
-            temp = STopPopP(stack);
-            Leftmost_Preorder(temp->RPtr,stack); // hledani nejlevejsiho uzlu v prave vetvi
+        while(!SEmptyP(&stack)){
+            temp = STopPopP(&stack);
+            Leftmost_Preorder(temp->RPtr,&stack); // hledani nejlevejsiho uzlu v prave vetvi
         }
     }
-
 }
 
 
@@ -298,20 +297,19 @@ void BTInorder (tBTNodePtr RootPtr)	{
 ** realizujte jako volání funkce BTWorkOut().
 **/	
     tBTNodePtr temp = RootPtr;
-    tStackP* stack = (tStackP*) malloc(sizeof(tStackP));
+    tStackP stack;
 
-    if(stack != NULL && temp != NULL){
-        SInitP(stack); // inicializace zasobniku
-        Leftmost_Inorder(temp, stack); // hledani nejlevejsiho uzlu 
+    if(temp != NULL){
+        SInitP(&stack); // inicializace zasobniku
+        Leftmost_Inorder(temp, &stack); // hledani nejlevejsiho uzlu 
         
-        while(!SEmptyP(stack)){
-            temp = STopPopP(stack); 
+        while(!SEmptyP(&stack)){
+            temp = STopPopP(&stack); 
             BTWorkOut(temp); // zpracovani uzlu 
-            Leftmost_Inorder(temp->RPtr, stack); // hledani nejlevejsiho uzlu v prave vetvi
+            Leftmost_Inorder(temp->RPtr, &stack); // hledani nejlevejsiho uzlu v prave vetvi
         }
     
     }
-
 }
 
 /*                                 POSTORDER                                  */
@@ -343,33 +341,32 @@ void BTPostorder (tBTNodePtr RootPtr)	{
     tBTNodePtr temp = RootPtr;
     bool done = false;
 
-    tStackP* Pstack = (tStackP*) malloc(sizeof(tStackP));
-    tStackB* Bstack = (tStackB*) malloc(sizeof(tStackB)); 
+    tStackP Pstack;
+    tStackB Bstack; 
 
-    if(Pstack != NULL && Bstack != NULL && temp != NULL){ 
+    if(temp != NULL){ 
         // inicializace zasobniku 
-        SInitP(Pstack); 
-        SInitB(Bstack);
+        SInitP(&Pstack); 
+        SInitB(&Bstack);
 
-        Leftmost_Postorder(temp, Pstack, Bstack); // hledani nejlevejsihu uzlu 
+        Leftmost_Postorder(temp, &Pstack, &Bstack); // hledani nejlevejsihu uzlu 
         
-        while(!SEmptyP(Pstack)){
-            temp = STopPopP(Pstack); // ulozeni vrcholu zasobniku, nikoliv pop
-            SPushP(Pstack, temp); // proto musim uzel vrati spatky na vrchol zasobniku
+        while(!SEmptyP(&Pstack)){
+            temp = STopPopP(&Pstack); // ulozeni vrcholu zasobniku, nikoliv pop
+            SPushP(&Pstack, temp); // proto musim uzel vrati spatky na vrchol zasobniku
 
-            done = STopPopB(Bstack);
+            done = STopPopB(&Bstack);
             
             if(done){ // pokud proslo levy uzel, nastavi false
-                SPushB(Bstack,false);
-                Leftmost_Postorder(temp->RPtr, Pstack, Bstack); // hledani nejlevejsiho uzlu v prave vetvi
+                SPushB(&Bstack,false);
+                Leftmost_Postorder(temp->RPtr, &Pstack, &Bstack); // hledani nejlevejsiho uzlu v prave vetvi
             }else{
-                temp = STopPopP(Pstack); // az tady probiha pop vrcholu zasobniku
+                temp = STopPopP(&Pstack); // az tady probiha pop vrcholu zasobniku
                 BTWorkOut(temp); // zpracovani uzlu
             }
         }
     
     }
-
 }
 
 
@@ -382,28 +379,25 @@ void BTDisposeTree (tBTNodePtr *RootPtr) {
 
     if (*RootPtr != NULL){ // pokud existuje alespon koren
 
-        tStackP* stack = (tStackP*) malloc(sizeof(tStackP)); 
+        tStackP stack;
+        SInitP(&stack);
   
-        if(stack != NULL){ // pokud se alokace povedla
-            SPushP(stack, *RootPtr); // ulozime na zasobnik koren
+        SPushP(&stack, *RootPtr); // ulozime na zasobnik koren
             
-            while(!SEmptyP(stack)){ // provadime dokud nevyprazdime zasobnik
-                *RootPtr = STopPopP(stack);
+        while(!SEmptyP(&stack)){ // provadime dokud nevyprazdime zasobnik
+            *RootPtr = STopPopP(&stack);
                 
-                if((*RootPtr)->RPtr != NULL){ // ulozime praveho potomka
-                    SPushP(stack,(*RootPtr)->RPtr);
-                }
-                if((*RootPtr)->LPtr != NULL){ // ulozime leveho potomka
-                    SPushP(stack,(*RootPtr)->LPtr);
-                }
-
-                free(*RootPtr); // uvolnime pamet uzlu, ktery byl na vrcholu zasobniku 
-                *RootPtr = NULL; // uvedeme do puvodniho stavu
+            if((*RootPtr)->RPtr != NULL){ // ulozime praveho potomka
+                SPushP(&stack,(*RootPtr)->RPtr);
+            }
+            
+            if((*RootPtr)->LPtr != NULL){ // ulozime leveho potomka
+                SPushP(&stack,(*RootPtr)->LPtr);
             }
 
-            free(stack); // uvolnime pamet zasobniku
+            free(*RootPtr); // uvolnime pamet uzlu, ktery byl na vrcholu zasobniku 
+            *RootPtr = NULL; // uvedeme do puvodniho stavu
         }
-
     }
 }
 
