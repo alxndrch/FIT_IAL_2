@@ -257,16 +257,16 @@ void BTPreorder (tBTNodePtr RootPtr)	{
 ** realizujte jako volání funkce BTWorkOut().
 **/
 
-    tBTNodePtr temp = RootPtr; // abychom neztratily vrchol
+    tBTNodePtr temp = RootPtr;
     tStackP *stack = (tStackP*) malloc(sizeof(tStackP)); 
 
     if(stack != NULL && temp != NULL){
         SInitP(stack); // inicializace zasobniku 
-        Leftmost_Preorder(temp,stack); // nalezeni nejlevejsiho uzlu 
+        Leftmost_Preorder(temp,stack); // hledani nejlevejsiho uzlu 
         
         while(!SEmptyP(stack)){
-             temp = STopPopP(stack);
-             Leftmost_Preorder(temp->RPtr,stack); // nalezeni nejlevejsiho uzlu v prave vetvi
+            temp = STopPopP(stack);
+            Leftmost_Preorder(temp->RPtr,stack); // hledani nejlevejsiho uzlu v prave vetvi
         }
     }
 
@@ -297,17 +297,17 @@ void BTInorder (tBTNodePtr RootPtr)	{
 ** Leftmost_Inorder a zásobníku ukazatelů. Zpracování jednoho uzlu stromu
 ** realizujte jako volání funkce BTWorkOut().
 **/	
-
+    tBTNodePtr temp = RootPtr;
     tStackP* stack = (tStackP*) malloc(sizeof(tStackP));
 
-    if(stack != NULL && RootPtr != NULL){
+    if(stack != NULL && temp != NULL){
         SInitP(stack); // inicializace zasobniku
-        Leftmost_Inorder(RootPtr, stack); // nalezeni nejlevejsiho uzlu 
+        Leftmost_Inorder(temp, stack); // hledani nejlevejsiho uzlu 
         
         while(!SEmptyP(stack)){
-            RootPtr = STopPopP(stack); 
-            BTWorkOut(RootPtr); // zpracovani uzlu 
-            Leftmost_Inorder(RootPtr->RPtr, stack); // nalezeni nejlevejsiho uzlu v prave vetvi
+            temp = STopPopP(stack); 
+            BTWorkOut(temp); // zpracovani uzlu 
+            Leftmost_Inorder(temp->RPtr, stack); // hledani nejlevejsiho uzlu v prave vetvi
         }
     
     }
@@ -324,11 +324,12 @@ void Leftmost_Postorder (tBTNodePtr ptr, tStackP *StackP, tStackB *StackB) {
 ** a současně do zásobníku bool hodnot ukládáme informaci, zda byl uzel
 ** navštíven poprvé a že se tedy ještě nemá zpracovávat.
 **/
+    tBTNodePtr temp = ptr; 
 
-    while(ptr != NULL){
-        SPushP(StackP, ptr);
+    while(temp != NULL){
+        SPushP(StackP, temp); // ulozeni uzlu na zasobnik
         SPushB(StackB,true);
-        ptr = ptr->LPtr;
+        temp = temp->LPtr; // postup k levejsimu uzlu
     }
 
 }
@@ -339,25 +340,31 @@ void BTPostorder (tBTNodePtr RootPtr)	{
 ** Leftmost_Postorder, zásobníku ukazatelů a zásobníku hotdnot typu bool.
 ** Zpracování jednoho uzlu stromu realizujte jako volání funkce BTWorkOut().
 **/
-
+    tBTNodePtr temp = RootPtr;
     bool done = false;
+
     tStackP* Pstack = (tStackP*) malloc(sizeof(tStackP));
     tStackB* Bstack = (tStackB*) malloc(sizeof(tStackB)); 
 
-    if(Pstack != NULL && Bstack != NULL && RootPtr != NULL){ 
-        SInitP(Pstack);
+    if(Pstack != NULL && Bstack != NULL && temp != NULL){ 
+        // inicializace zasobniku 
+        SInitP(Pstack); 
         SInitB(Bstack);
-        Leftmost_Postorder(RootPtr, Pstack, Bstack);
+
+        Leftmost_Postorder(temp, Pstack, Bstack); // hledani nejlevejsihu uzlu 
         
         while(!SEmptyP(Pstack)){
-            RootPtr = STopPopP(Pstack);
+            temp = STopPopP(Pstack); // ulozeni vrcholu zasobniku, nikoliv pop
+            SPushP(Pstack, temp); // proto musim uzel vrati spatky na vrchol zasobniku
+
             done = STopPopB(Bstack);
             
-            if(done){
+            if(done){ // pokud proslo levy uzel, nastavi false
                 SPushB(Bstack,false);
-                Leftmost_Postorder(RootPtr->RPtr, Pstack, Bstack);
+                Leftmost_Postorder(temp->RPtr, Pstack, Bstack); // hledani nejlevejsiho uzlu v prave vetvi
             }else{
-                BTWorkOut(RootPtr);
+                temp = STopPopP(Pstack); // az tady probiha pop vrcholu zasobniku
+                BTWorkOut(temp); // zpracovani uzlu
             }
         }
     
