@@ -111,12 +111,13 @@ void BSTInsert (tBSTNodePtr* RootPtr, char K, int Content) { //ukazatel na ukaza
     if(*RootPtr == NULL){ // neexistuje uzel s hledanym klicem 
         *RootPtr = (struct tBSTNode*) malloc(sizeof(struct tBSTNode)); // vytvorime novy uzel
         
-        if(*RootPtr != NULL){ // inicializace noveho uzlu
+        if(*RootPtr != NULL){ // inicializace noveho uzlu 
             (*RootPtr)->Key = K;
             (*RootPtr)->BSTNodeCont = Content;
 	    (*RootPtr)->LPtr = NULL;
 	    (*RootPtr)->RPtr = NULL;
         }
+
     }else{
         if (K > (*RootPtr)->Key){ // hledany klic je vetsi
 	    BSTInsert(&((*RootPtr)->RPtr), K, Content); // prochazime pravou vetev
@@ -126,6 +127,7 @@ void BSTInsert (tBSTNodePtr* RootPtr, char K, int Content) { //ukazatel na ukaza
 	    (*RootPtr)->BSTNodeCont = Content; // byl nalezen klic, aktualizujeme data
 	}
     }
+
 
 }
 
@@ -142,30 +144,35 @@ void ReplaceByRightmost (tBSTNodePtr PtrReplaced, tBSTNodePtr *RootPtr) { //žer
 ** přečtěte si komentář k funkci BSTDelete().
 **/
 
-	// hledame maximum leveho podstromu
+    // hledame maximum leveho podstromu
     if(PtrReplaced != NULL){
         if(*RootPtr == NULL){ // vstoupime do leveho podstromu pokud tam nejsme 
             ReplaceByRightmost(PtrReplaced, &(PtrReplaced->LPtr));
         }else if(*RootPtr != NULL){
                 
             if((*RootPtr)->RPtr == NULL){ // pokud jsme v maximu levehe podstromu
-		// provedeme vymenu
+		// provedeme vymenui
+
+                tBSTNodePtr Root_LBranch = (*RootPtr)->LPtr; //leva vetev maxima
+
                 PtrReplaced->Key = (*RootPtr)->Key;
 		PtrReplaced->BSTNodeCont = (*RootPtr)->BSTNodeCont;
-			
-		PtrReplaced->LPtr = (*RootPtr)->LPtr;
+		
+                free(*RootPtr);
+                *RootPtr = NULL;
+		PtrReplaced->LPtr = Root_LBranch;
 			
             }else{ // pokud nejsme v maximu hledame dal
                 if((*RootPtr)->RPtr->RPtr == NULL){ 
-                    tBSTNodePtr temp = (*RootPtr)->RPtr;
+                    tBSTNodePtr mostLeft = (*RootPtr)->RPtr; //nejlevejsi uzel
 
-                    PtrReplaced->Key = temp->Key;
-                    PtrReplaced->BSTNodeCont = temp->BSTNodeCont;
+                    PtrReplaced->Key = mostLeft->Key;
+                    PtrReplaced->BSTNodeCont = mostLeft->BSTNodeCont;
 
-                    (*RootPtr)->RPtr = temp->LPtr;
+                    (*RootPtr)->RPtr = mostLeft->LPtr; //leva vetev maxima se stava pravou vetvi jeho predchudce 
                         
-                    free(temp);
-                    temp = NULL;
+                    free(mostLeft);
+                    mostLeft = NULL;
 	
 		}else{
 		    ReplaceByRightmost(PtrReplaced, &((*RootPtr)->RPtr));	
@@ -236,9 +243,8 @@ void BSTDispose (tBSTNodePtr *RootPtr) { //žere ukazatel na ukazatel
         BSTDispose(&((*RootPtr)->RPtr)); //smazeme pravou vetev argument - adresa ukazatele RPtr
 
         free(*RootPtr); //smazeme list
-	BSTInit(RootPtr); //uvedeme strom do puvodniho stavu
-
     }
+    *RootPtr = NULL;
 }
 
 /* konec c401.c */
