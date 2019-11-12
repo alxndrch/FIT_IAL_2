@@ -30,7 +30,6 @@
 
 # Executables
 *.exe
-*.out
 *.app
 *.i*86
 *.x86_64
@@ -53,8 +52,6 @@ dkms.conf
 
 # Output
 *.txt
-*.out
-*.output
 c016-test
 c401-test
 c402-test
